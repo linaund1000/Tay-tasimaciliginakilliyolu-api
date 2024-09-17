@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAY - Taşımacılık Ve Yüksek Teknoloji</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" rel="stylesheet">
+</head>
+
+<style>
+    :root {
+    --primary-color: #1a73e8;
+    --secondary-color: #34a853;
+    --background-color: #f8f9fa;
+    --text-color: #202124;
+    --border-color: #dadce0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+.tay-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.tay-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.tay-header__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tay-logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.tay-version {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.tay-nav__list {
+    display: flex;
+    list-style-type: none;
+}
+
+.tay-nav__item {
+    margin-left: 20px;
+}
+
+.tay-nav__link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.tay-nav__link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tay-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.tay-main {
+    margin-top: 60px;
+    padding: 2rem 0;
+}
+
+.tay-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.tay-section__title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.tay-form__group {
+    margin-bottom: 1rem;
+}
+
+.tay-form__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.tay-form__input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.tay-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.tay-button:hover {
+    background-color: #1765cc;
+}
+
+.tay-button--secondary {
+    background-color: var(--secondary-color);
+}
+
+.tay-button--secondary:hover {
+    background-color: #2d9748;
+}
+
+.tay-map-container {
+    height: 400px;
+    margin-top: 2rem;
+}
+
+.tay-map {
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+@media (max-width: 768px) {
+    .tay-header__content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tay-nav {
+        width: 100%;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .tay-nav.active {
+        display: block;
+    }
+
+    .tay-nav__list {
+        flex-direction: column;
+    }
+
+    .tay-nav__item {
+        margin: 10px 0;
+    }
+
+    .tay-menu-toggle {
+        display: block;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .tay-main {
+        margin-top: 100px;
+    }
+}
+
+.tay-form__product {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tay-shipments {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.tay-shipment-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    padding: 1rem;
+}
+
+.tay-shipment-card__title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.tay-shipment-card__info {
+    margin-bottom: 0.5rem;
+}
+
+.tay-shipment-card__label {
+    font-weight: 500;
+}
+
+
+</style>
+<body>
+    <header class="tay-header">
+        <div class="tay-container">
+            <div class="tay-header__content">
+                <div class="tay-logo">
+                    TAY - Taşımacılığın Akıllı Yolu <span class="tay-version">(Versiyon 0.0.2)</span>
+                </div>
+                <nav class="tay-nav">
+                    <ul class="tay-nav__list">
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showDepoProfile()">Depo Profili</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showUserProfile()">Kullanıcı Profili</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showShipmentForm()">Yeni Gönderi</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showActiveShipments()">Aktif Gönderiler</a></li>
+                    </ul>
+                </nav>
+                <button class="tay-menu-toggle" id="menu-toggle">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="tay-main">
+        <div class="tay-container">
+            <section id="depo-profile" class="tay-section">
+                <h2 class="tay-section__title">Depo Profili</h2>
+                <form id="depo-form" class="tay-form">
+                    <div class="tay-form__group">
+                        <label for="depo-name" class="tay-form__label">Depo Adı</label>
+                        <input type="text" id="depo-name" class="tay-form__input" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="depo-address" class="tay-form__label">Adres</label>
+                        <textarea id="depo-address" class="tay-form__input" required></textarea>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="depo-lat" class="tay-form__label">Enlem</label>
+                        <input type="number" id="depo-lat" class="tay-form__input" step="any" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="depo-lng" class="tay-form__label">Boylam</label>
+                        <input type="number" id="depo-lng" class="tay-form__input" step="any" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="depo-capacity" class="tay-form__label">Kapasite (m³)</label>
+                        <input type="number" id="depo-capacity" class="tay-form__input" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="depo-hours" class="tay-form__label">Çalışma Saatleri</label>
+                        <input type="text" id="depo-hours" class="tay-form__input" required>
+                    </div>
+                    <button type="submit" class="tay-button">Kaydet</button>
+                </form>
+            </section>
+
+            <section id="user-profile" class="tay-section" style="display: none;">
+                <h2 class="tay-section__title">Kullanıcı Profili</h2>
+                <form id="user-form" class="tay-form">
+                    <div class="tay-form__group">
+                        <label for="user-name" class="tay-form__label">Ad Soyad</label>
+                        <input type="text" id="user-name" class="tay-form__input" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="user-email" class="tay-form__label">E-posta</label>
+                        <input type="email" id="user-email" class="tay-form__input" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="user-phone" class="tay-form__label">Telefon</label>
+                        <input type="tel" id="user-phone" class="tay-form__input" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="user-position" class="tay-form__label">Pozisyon</label>
+                        <input type="text" id="user-position" class="tay-form__input" required>
+                    </div>
+                    <button type="submit" class="tay-button">Kaydet</button>
+                </form>
+            </section>
+
+            <section id="shipment-form" class="tay-section" style="display: none;">
+                <h2 class="tay-section__title">Yeni Gönderi</h2>
+                <form id="shipment-form" class="tay-form">
+                    <div id="products-container">
+                        <div class="tay-form__product">
+                            <h3>Ürün 1</h3>
+                            <div class="tay-form__group">
+                                <label for="product-name-1" class="tay-form__label">Ürün Adı</label>
+                                <input type="text" id="product-name-1" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="product-category-1" class="tay-form__label">Kategori</label>
+                                <input type="text" id="product-category-1" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="product-weight-1" class="tay-form__label">Ağırlık (kg)</label>
+                                <input type="number" id="product-weight-1" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="product-volume-1" class="tay-form__label">Hacim (m³)</label>
+                                <input type="number" id="product-volume-1" class="tay-form__input" step="0.01" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="product-requirements-1" class="tay-form__label">Özel Gereksinimler</label>
+                                <input type="text" id="product-requirements-1" class="tay-form__input">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="add-product" class="tay-button tay-button--secondary">Ürün Ekle</button>
+                    <div class="tay-form__group">
+                        <label for="destination-address" class="tay-form__label">Varış Adresi</label>
+                        <textarea id="destination-address" class="tay-form__input" required></textarea>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="destination-lat" class="tay-form__label">Varış Enlem</label>
+                        <input type="number" id="destination-lat" class="tay-form__input" step="any" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="destination-lng" class="tay-form__label">Varış Boylam</label>
+                        <input type="number" id="destination-lng" class="tay-form__input" step="any" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="loading-time" class="tay-form__label">Tahmini Yükleme Süresi (saat)</label>
+                        <input type="number" id="loading-time" class="tay-form__input" step="0.5" required>
+                    </div>
+                    <div class="tay-form__group">
+                        <label for="delivery-time" class="tay-form__label">Tahmini Teslim Süresi (saat)</label>
+                        <input type="number" id="delivery-time" class="tay-form__input" step="0.5" required>
+                    </div>
+                    <button type="submit" class="tay-button">Gönderiyi Başlat</button>
+                </form>
+            </section>
+
+            <section id="active-shipments" class="tay-section" style="display: none;">
+                <h2 class="tay-section__title">Aktif Gönderiler</h2>
+                <div id="shipments-container" class="tay-shipments"></div>
+            </section>
+        </div>
+    </main>
+
+    <div id="map-container" class="tay-map-container">
+        <div id="map" class="tay-map"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+
+    <script>
+
+        // ==================== Global Variables and State Management ====================
+const state = {
+    depoProfile: null,
+    userProfile: null,
+    activeShipments: [],
+    availableTrucks: []
+};
+
+// ==================== DOM Element Selectors ====================
+const elements = {
+    menuToggle: document.getElementById('menu-toggle'),
+    nav: document.querySelector('.tay-nav'),
+    depoForm: document.getElementById('depo-form'),
+    userForm: document.getElementById('user-form'),
+    shipmentForm: document.getElementById('shipment-form'),
+    addProductButton: document.getElementById('add-product'),
+    productsContainer: document.getElementById('products-container'),
+    shipmentsContainer: document.getElementById('shipments-container'),
+    mapContainer: document.getElementById('map'),
+    sections: {
+        depoProfile: document.getElementById('depo-profile'),
+        userProfile: document.getElementById('user-profile'),
+        shipmentForm: document.getElementById('shipment-form'),
+        activeShipments: document.getElementById('active-shipments')
+    }
+};
+
+// ==================== Event Listeners ====================
+function setupEventListeners() {
+    elements.menuToggle.addEventListener('click', toggleMenu);
+    elements.depoForm.addEventListener('submit', handleDepoFormSubmit);
+    elements.userForm.addEventListener('submit', handleUserFormSubmit);
+    elements.shipmentForm.addEventListener('submit', handleShipmentFormSubmit);
+    elements.addProductButton.addEventListener('click', addProduct);
+
+    document.querySelectorAll('.tay-nav__link').forEach(link => {
+        link.addEventListener('click', handleNavigation);
+    });
+}
+
+// ==================== Utility Functions ====================
+function toggleMenu() {
+    elements.nav.classList.toggle('active');
+}
+
+function hideAllSections() {
+    Object.values(elements.sections).forEach(section => section.style.display = 'none');
+}
+
+function showSection(sectionId) {
+    hideAllSections();
+    elements.sections[sectionId].style.display = 'block';
+}
+
+function generateId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+// ==================== Form Handling Functions ====================
+function handleDepoFormSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    state.depoProfile = Object.fromEntries(formData.entries());
+    saveToLocalStorage('depoProfile', state.depoProfile);
+    updateDepoProfileUI();
+    showNotification('Depo bilgileri başarıyla kaydedildi', 'success');
+}
+
+function handleUserFormSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    state.userProfile = Object.fromEntries(formData.entries());
+    saveToLocalStorage('userProfile', state.userProfile);
+    updateUserProfileUI();
+    showNotification('Kullanıcı bilgileri başarıyla kaydedildi', 'success');
+}
+
+function handleShipmentFormSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const shipment = {
+        id: generateId(),
+        products: getProductsFromForm(),
+        destination: {
+            address: formData.get('destination-address'),
+            lat: formData.get('destination-lat'),
+            lng: formData.get('destination-lng')
+        },
+        loadingTime: formData.get('loading-time'),
+        deliveryTime: formData.get('delivery-time'),
+        status: 'Hazırlanıyor',
+        createdAt: new Date().toISOString()
+    };
+    state.activeShipments.push(shipment);
+    saveToLocalStorage('activeShipments', state.activeShipments);
+    updateActiveShipmentsUI();
+    showNotification('Yeni gönderi başarıyla oluşturuldu', 'success');
+    e.target.reset();
+}
+
+function getProductsFromForm() {
+    const products = [];
+    document.querySelectorAll('.tay-form__product').forEach((productElement, index) => {
+        products.push({
+            name: document.getElementById(`product-name-${index + 1}`).value,
+            category: document.getElementById(`product-category-${index + 1}`).value,
+            weight: document.getElementById(`product-weight-${index + 1}`).value,
+            volume: document.getElementById(`product-volume-${index + 1}`).value,
+            requirements: document.getElementById(`product-requirements-${index + 1}`).value
+        });
+    });
+    return products;
+}
+
+let productCount = 1;
+function addProduct() {
+    productCount++;
+    const productHTML = `
+        <div class="tay-form__product">
+            <h3>Ürün ${productCount}</h3>
+            <div class="tay-form__group">
+                <label for="product-name-${productCount}" class="tay-form__label">Ürün Adı</label>
+                <input type="text" id="product-name-${productCount}" name="product-name-${productCount}" class="tay-form__input" required>
+            </div>
+            <div class="tay-form__group">
+                <label for="product-category-${productCount}" class="tay-form__label">Kategori</label>
+                <input type="text" id="product-category-${productCount}" name="product-category-${productCount}" class="tay-form__input" required>
+            </div>
+            <div class="tay-form__group">
+                <label for="product-weight-${productCount}" class="tay-form__label">Ağırlık (kg)</label>
+                <input type="number" id="product-weight-${productCount}" name="product-weight-${productCount}" class="tay-form__input" required>
+            </div>
+            <div class="tay-form__group">
+                <label for="product-volume-${productCount}" class="tay-form__label">Hacim (m³)</label>
+                <input type="number" id="product-volume-${productCount}" name="product-volume-${productCount}" class="tay-form__input" step="0.01" required>
+            </div>
+            <div class="tay-form__group">
+                <label for="product-requirements-${productCount}" class="tay-form__label">Özel Gereksinimler</label>
+                <input type="text" id="product-requirements-${productCount}" name="product-requirements-${productCount}" class="tay-form__input">
+            </div>
+        </div>
+    `;
+    elements.productsContainer.insertAdjacentHTML('beforeend', productHTML);
+}
+
+// ==================== Data Management Functions ====================
+function saveToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function loadFromLocalStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+function loadAllData() {
+    state.depoProfile = loadFromLocalStorage('depoProfile') || null;
+    state.userProfile = loadFromLocalStorage('userProfile') || null;
+    state.activeShipments = loadFromLocalStorage('activeShipments') || [];
+    state.availableTrucks = loadFromLocalStorage('availableTrucks') || [];
+}
+
+// ==================== UI Update Functions ====================
+function updateDepoProfileUI() {
+    if (state.depoProfile) {
+        Object.keys(state.depoProfile).forEach(key => {
+            const input = document.getElementById(`depo-${key}`);
+            if (input) input.value = state.depoProfile[key];
+        });
+    }
+}
+
+function updateUserProfileUI() {
+    if (state.userProfile) {
+        Object.keys(state.userProfile).forEach(key => {
+            const input = document.getElementById(`user-${key}`);
+            if (input) input.value = state.userProfile[key];
+        });
+    }
+}
+
+function updateActiveShipmentsUI() {
+    elements.shipmentsContainer.innerHTML = '';
+    state.activeShipments.forEach(shipment => {
+        const shipmentHTML = `
+            <div class="tay-shipment-card">
+                <h3 class="tay-shipment-card__title">Gönderi #${shipment.id}</h3>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Varış:</span> ${shipment.destination.address}</p>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Durum:</span> ${shipment.status}</p>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Oluşturulma Tarihi:</span> ${new Date(shipment.createdAt).toLocaleString()}</p>
+                <button class="tay-button tay-button--secondary" onclick="showShipmentDetails('${shipment.id}')">Detaylar</button>
+            </div>
+        `;
+        elements.shipmentsContainer.insertAdjacentHTML('beforeend', shipmentHTML);
+    });
+}
+
+function showShipmentDetails(shipmentId) {
+    const shipment = state.activeShipments.find(s => s.id === shipmentId);
+    if (!shipment) return;
+
+    const detailsHTML = `
+        <h2>Gönderi #${shipment.id} Detayları</h2>
+        <p><strong>Varış Adresi:</strong> ${shipment.destination.address}</p>
+        <p><strong>Durum:</strong> ${shipment.status}</p>
+        <p><strong>Yükleme Süresi:</strong> ${shipment.loadingTime} saat</p>
+        <p><strong>Teslim Süresi:</strong> ${shipment.deliveryTime} saat</p>
+        <h3>Ürünler:</h3>
+        <ul>
+            ${shipment.products.map(product => `
+                <li>
+                    <strong>${product.name}</strong> (${product.category})
+                    <br>Ağırlık: ${product.weight} kg, Hacim: ${product.volume} m³
+                    ${product.requirements ? `<br>Özel Gereksinimler: ${product.requirements}` : ''}
+                </li>
+            `).join('')}
+        </ul>
+    `;
+
+    showModal(detailsHTML);
+}
+
+function showModal(content) {
+    const modal = document.createElement('div');
+    modal.className = 'tay-modal';
+    modal.innerHTML = `
+        <div class="tay-modal__content">
+            ${content}
+            <button class="tay-button" onclick="closeModal()">Kapat</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function closeModal() {
+    const modal = document.querySelector('.tay-modal');
+    if (modal) modal.remove();
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `tay-notification tay-notification--${type}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// ==================== Map Handling Functions ====================
+let map;
+
+function initMap() {
+    map = L.map('map').setView([39.9334, 32.8597], 6); // Centered on Turkey
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+}
+
+function updateMapWithShipments() {
+    if (map) {
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+
+        state.activeShipments.forEach(shipment => {
+            L.marker([shipment.destination.lat, shipment.destination.lng])
+                .addTo(map)
+                .bindPopup(`Gönderi #${shipment.id}<br>Varış: ${shipment.destination.address}`);
+        });
+    }
+}
+
+// ==================== API Simulation Functions ====================
+function simulateAPICall(endpoint, data, delay = 1000) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            if (Math.random() < 0.9) { // 90% success rate
+                resolve({ success: true, data });
+            } else {
+                reject(new Error('API çağrısı başarısız oldu'));
+            }
+        }, delay);
+    });
+}
+
+async function fetchAvailableTrucks() {
+    try {
+        const response = await simulateAPICall('/api/available-trucks', [
+            { id: 'T001', type: 'Kamyon', capacity: '10 ton' },
+            { id: 'T002', type: 'TIR', capacity: '20 ton' },
+            { id: 'T003', type: 'Kamyonet', capacity: '5 ton' },
+        ]);
+        state.availableTrucks = response.data;
+        updateAvailableTrucksUI();
+    } catch (error) {
+        showNotification('Müsait araçlar yüklenirken bir hata oluştu', 'error');
+    }
+}
+
+function updateAvailableTrucksUI() {
+    const truckListContainer = document.getElementById('truck-list');
+    if (!truckListContainer) return;
+
+    truckListContainer.innerHTML = '';
+    state.availableTrucks.forEach(truck => {
+        const truckHTML = `
+            <div class="tay-truck-card">
+                <h3 class="tay-truck-card__title">Araç #${truck.id}</h3>
+                <p class="tay-truck-card__info"><span class="tay-truck-card__label">Tür:</span> ${truck.type}</p>
+                <p class="tay-truck-card__info"><span class="tay-truck-card__label">Kapasite:</span> ${truck.capacity}</p>
+                <button class="tay-button tay-button--secondary" onclick="assignTruck('${truck.id}')">Ata</button>
+            </div>
+        `;
+        truckListContainer.insertAdjacentHTML('beforeend', truckHTML);
+    });
+}
+
+function assignTruck(truckId) {
+    // This function would typically involve backend communication
+    // For demo purposes, we'll just show a notification
+    showNotification(`${truckId} numaralı araç atandı`, 'success');
+}
+
+// ... (previous code remains the same)
+
+// ==================== Navigation Handling ====================
+function handleNavigation(e) {
+    e.preventDefault();
+    const target = e.target.getAttribute('onclick').match(/'(\w+)'/)[1];
+    switch (target) {
+        case 'showDepoProfile':
+            showSection('depoProfile');
+            break;
+        case 'showUserProfile':
+            showSection('userProfile');
+            break;
+        case 'showShipmentForm':
+            showSection('shipmentForm');
+            break;
+        case 'showActiveShipments':
+            showSection('activeShipments');
+            updateActiveShipmentsUI();
+            updateMapWithShipments();
+            break;
+        case 'showAvailableTrucks':
+            showAvailableTrucks();
+            break;
+    }
+}
+
+function showAvailableTrucks() {
+    showSection('activeShipments'); // Reuse the active shipments section for trucks
+    fetchAvailableTrucks();
+}
+
+// ==================== Initialization ====================
+function initApp() {
+    setupEventListeners();
+    loadAllData();
+    updateDepoProfileUI();
+    updateUserProfileUI();
+    updateActiveShipmentsUI();
+    initMap();
+    showSection('depoProfile'); // Show depo profile by default
+}
+
+// ==================== Error Handling ====================
+window.onerror = function(message, source, lineno, colno, error) {
+    console.error('An error occurred:', error);
+    showNotification('Bir hata oluştu. Lütfen daha sonra tekrar deneyin.', 'error');
+    return true;
+};
+
+// ==================== Additional Utility Functions ====================
+function validateForm(formElement) {
+    const inputs = formElement.querySelectorAll('input[required], textarea[required]');
+    let isValid = true;
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            isValid = false;
+            input.classList.add('tay-form__input--error');
+        } else {
+            input.classList.remove('tay-form__input--error');
+        }
+    });
+    return isValid;
+}
+
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('tr-TR', options);
+}
+
+// ==================== Enhanced Form Handling ====================
+function handleDepoFormSubmit(e) {
+    e.preventDefault();
+    if (!validateForm(e.target)) {
+        showNotification('Lütfen tüm gerekli alanları doldurun', 'error');
+        return;
+    }
+    const formData = new FormData(e.target);
+    state.depoProfile = Object.fromEntries(formData.entries());
+    simulateAPICall('/api/depo-profile', state.depoProfile)
+        .then(() => {
+            saveToLocalStorage('depoProfile', state.depoProfile);
+            updateDepoProfileUI();
+            showNotification('Depo bilgileri başarıyla kaydedildi', 'success');
+        })
+        .catch(error => {
+            showNotification('Depo bilgileri kaydedilirken bir hata oluştu', 'error');
+        });
+}
+
+function handleUserFormSubmit(e) {
+    e.preventDefault();
+    if (!validateForm(e.target)) {
+        showNotification('Lütfen tüm gerekli alanları doldurun', 'error');
+        return;
+    }
+    const formData = new FormData(e.target);
+    state.userProfile = Object.fromEntries(formData.entries());
+    simulateAPICall('/api/user-profile', state.userProfile)
+        .then(() => {
+            saveToLocalStorage('userProfile', state.userProfile);
+            updateUserProfileUI();
+            showNotification('Kullanıcı bilgileri başarıyla kaydedildi', 'success');
+        })
+        .catch(error => {
+            showNotification('Kullanıcı bilgileri kaydedilirken bir hata oluştu', 'error');
+        });
+}
+
+function handleShipmentFormSubmit(e) {
+    e.preventDefault();
+    if (!validateForm(e.target)) {
+        showNotification('Lütfen tüm gerekli alanları doldurun', 'error');
+        return;
+    }
+    const formData = new FormData(e.target);
+    const shipment = {
+        id: generateId(),
+        products: getProductsFromForm(),
+        destination: {
+            address: formData.get('destination-address'),
+            lat: formData.get('destination-lat'),
+            lng: formData.get('destination-lng')
+        },
+        loadingTime: formData.get('loading-time'),
+        deliveryTime: formData.get('delivery-time'),
+        status: 'Hazırlanıyor',
+        createdAt: new Date().toISOString()
+    };
+    simulateAPICall('/api/new-shipment', shipment)
+        .then(() => {
+            state.activeShipments.push(shipment);
+            saveToLocalStorage('activeShipments', state.activeShipments);
+            updateActiveShipmentsUI();
+            updateMapWithShipments();
+            showNotification('Yeni gönderi başarıyla oluşturuldu', 'success');
+            e.target.reset();
+            productCount = 1;
+            elements.productsContainer.innerHTML = '';
+            addProduct(); // Add the first product form back
+        })
+        .catch(error => {
+            showNotification('Gönderi oluşturulurken bir hata oluştu', 'error');
+        });
+}
+
+// ==================== Enhanced UI Update Functions ====================
+function updateActiveShipmentsUI() {
+    elements.shipmentsContainer.innerHTML = '';
+    if (state.activeShipments.length === 0) {
+        elements.shipmentsContainer.innerHTML = '<p>Aktif gönderi bulunmamaktadır.</p>';
+        return;
+    }
+    state.activeShipments.forEach(shipment => {
+        const shipmentHTML = `
+            <div class="tay-shipment-card">
+                <h3 class="tay-shipment-card__title">Gönderi #${shipment.id}</h3>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Varış:</span> ${shipment.destination.address}</p>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Durum:</span> ${shipment.status}</p>
+                <p class="tay-shipment-card__info"><span class="tay-shipment-card__label">Oluşturulma Tarihi:</span> ${formatDate(shipment.createdAt)}</p>
+                <button class="tay-button tay-button--secondary" onclick="showShipmentDetails('${shipment.id}')">Detaylar</button>
+                <button class="tay-button tay-button--primary" onclick="updateShipmentStatus('${shipment.id}')">Durumu Güncelle</button>
+            </div>
+        `;
+        elements.shipmentsContainer.insertAdjacentHTML('beforeend', shipmentHTML);
+    });
+}
+
+function updateShipmentStatus(shipmentId) {
+    const shipment = state.activeShipments.find(s => s.id === shipmentId);
+    if (!shipment) return;
+
+    const newStatus = prompt('Yeni durumu girin:', shipment.status);
+    if (newStatus && newStatus !== shipment.status) {
+        simulateAPICall('/api/update-shipment-status', { id: shipmentId, status: newStatus })
+            .then(() => {
+                shipment.status = newStatus;
+                saveToLocalStorage('activeShipments', state.activeShipments);
+                updateActiveShipmentsUI();
+                showNotification('Gönderi durumu güncellendi', 'success');
+            })
+            .catch(error => {
+                showNotification('Gönderi durumu güncellenirken bir hata oluştu', 'error');
+            });
+    }
+}
+
+// ==================== Enhanced Map Handling ====================
+function updateMapWithShipments() {
+    if (map) {
+        map.eachLayer(layer => {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+
+        if (state.depoProfile) {
+            L.marker([state.depoProfile.lat, state.depoProfile.lng])
+                .addTo(map)
+                .bindPopup('Depo Konumu')
+                .openPopup();
+        }
+
+        state.activeShipments.forEach(shipment => {
+            L.marker([shipment.destination.lat, shipment.destination.lng])
+                .addTo(map)
+                .bindPopup(`Gönderi #${shipment.id}<br>Varış: ${shipment.destination.address}`);
+        });
+
+        // Fit map bounds to show all markers
+        const group = new L.featureGroup(map._layers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+}
+
+// ==================== Additional Features ====================
+function exportShipmentsToCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "ID,Varış Adresi,Durum,Oluşturulma Tarihi\n";
+    
+    state.activeShipments.forEach(shipment => {
+        csvContent += `${shipment.id},${shipment.destination.address},${shipment.status},${formatDate(shipment.createdAt)}\n`;
+    });
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "aktif_gonderiler.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Add this button to the Active Shipments section in HTML
+// <button class="tay-button" onclick="exportShipmentsToCSV()">Aktif Gönderileri Dışa Aktar</button>
+
+// ==================== Run the application ====================
+initApp();
+
+
+function showDepoProfile() {
+    showSection('depoProfile');
+}
+
+function showUserProfile() {
+    showSection('userProfile');
+}
+
+function showShipmentForm() {
+    showSection('shipmentForm');
+}
+
+function showActiveShipments() {
+    showSection('activeShipments');
+    updateActiveShipmentsUI();
+    updateMapWithShipments();
+}
+
+function setupEventListeners() {
+    elements.menuToggle.addEventListener('click', toggleMenu);
+    elements.depoForm.addEventListener('submit', handleDepoFormSubmit);
+    elements.userForm.addEventListener('submit', handleUserFormSubmit);
+    elements.shipmentForm.addEventListener('submit', handleShipmentFormSubmit);
+    elements.addProductButton.addEventListener('click', addProduct);
+
+    document.querySelectorAll('.tay-nav__link').forEach(link => {
+        link.addEventListener('click', handleNavigation);
+    });
+}
+
+
+    </script>
+</body>
+        </html>

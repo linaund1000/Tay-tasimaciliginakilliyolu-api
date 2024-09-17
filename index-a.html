@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TAY - Taşımacılık Ve Yüksek Teknoloji</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+    :root {
+    --primary-color: #1a73e8;
+    --secondary-color: #34a853;
+    --background-color: #f8f9fa;
+    --text-color: #202124;
+    --border-color: #dadce0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+.tay-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.tay-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.tay-header__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tay-logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.tay-version {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.tay-nav__list {
+    display: flex;
+    list-style-type: none;
+}
+
+.tay-nav__item {
+    margin-left: 20px;
+}
+
+.tay-nav__link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.tay-nav__link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.tay-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.tay-main {
+    margin-top: 60px;
+    padding: 2rem 0;
+}
+
+.tay-section {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.tay-section__title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.tay-form__group {
+    margin-bottom: 1rem;
+}
+
+.tay-form__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.tay-form__input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.tay-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.tay-button:hover {
+    background-color: #1765cc;
+}
+
+.tay-button--secondary {
+    background-color: var(--secondary-color);
+}
+
+.tay-button--secondary:hover {
+    background-color: #2d9748;
+}
+
+.tay-map-container {
+    height: 400px;
+    margin-top: 2rem;
+}
+
+.tay-map {
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+}
+@media (max-width: 768px) {
+    .tay-header__content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .tay-nav {
+        width: 100%;
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .tay-nav.active {
+        display: block;
+    }
+
+    .tay-nav__list {
+        flex-direction: column;
+    }
+
+    .tay-nav__item {
+        margin: 10px 0;
+    }
+
+    .tay-menu-toggle {
+        display: block;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+    }
+
+    .tay-main {
+        margin-top: 100px;
+    }
+}
+
+.tay-form__product {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.tay-shipments {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.tay-shipment-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    padding: 1rem;
+}
+
+.tay-shipment-card__title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.tay-shipment-card__info {
+    margin-bottom: 0.5rem;
+}
+
+.tay-shipment-card__label {
+    font-weight: 500;
+}
+
+
+</style>
+</head>
+<body>
+    <header class="tay-header">
+        <div class="tay-container">
+            <div class="tay-header__content">
+                <div class="tay-logo">
+                    TAY - Taşımacılığın Akıllı Yolu <span class="tay-version">(Versiyon 0.0.3)</span>
+                </div>
+                <nav class="tay-nav">
+                    <ul class="tay-nav__list">
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showJobList()">Aktif İşler</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showAvailableTrucks()">Müsait Tırlar</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showProfile()">Profil</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showCompletedJobs()">Tamamlanan İşler</a></li>
+                        <li class="tay-nav__item"><a href="#" class="tay-nav__link" onclick="showMalGirisi()">Mal Girişi</a></li>
+                    </ul>
+                </nav>
+                <button class="tay-menu-toggle" id="menu-toggle">☰</button>
+            </div>
+        </div>
+    </header>
+    <div class="main-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <h2>Depo Bilgileri</h2>
+                <div id="depo-info">
+                    <p>Yükleniyor...</p>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+        <main class="main-content">
+            <div class="container">
+                <section id="job-list-section">
+                    <h2 class="section-title">Mevcut İşler</h2>
+                    <div class="card-container" id="job-list"></div>
+                </section>
+
+                <section id="truck-list-section" style="display: none;">
+                    <h2 class="section-title">Müsait Tırlar</h2>
+                    <div class="card-container" id="truck-list"></div>
+                </section>
+
+                <section id="mal-girisi-section" style="display: none;">
+                    <h2 class="section-title">Mal Girişi ve Kabul</h2>
+                    <form id="mal-girisi-form" class="tay-form">
+                        <div class="tay-form__group">
+                            <label for="mal-adi" class="tay-form__label">Mal Adı</label>
+                            <input type="text" id="mal-adi" name="mal-adi" class="tay-form__input" required>
+                        </div>
+                        <div class="tay-form__group">
+                            <label for="mal-miktari" class="tay-form__label">Miktar</label>
+                            <input type="number" id="mal-miktari" name="mal-miktari" class="tay-form__input" required>
+                        </div>
+                        <div class="tay-form__group">
+                            <label for="mal-birimi" class="tay-form__label">Birim</label>
+                            <select id="mal-birimi" name="mal-birimi" class="tay-form__input" required>
+                                <option value="adet">Adet</option>
+                                <option value="kg">Kilogram</option>
+                                <option value="ton">Ton</option>
+                                <option value="litre">Litre</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="tay-button">Mal Girişi Yap</button>
+                    </form>
+
+                    <div id="kabul-detaylari" style="display: none;">
+                        <h3>Kabul Detayları</h3>
+                        <form id="kabul-form" class="tay-form">
+                            <div class="tay-form__group">
+                                <label for="alici-adi" class="tay-form__label">Alıcı Adı</label>
+                                <input type="text" id="alici-adi" name="alici-adi" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="gelis-saati" class="tay-form__label">Geliş Saati</label>
+                                <input type="time" id="gelis-saati" name="gelis-saati" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="tir-plakasi" class="tay-form__label">Tır Plakası</label>
+                                <input type="text" id="tir-plakasi" name="tir-plakasi" class="tay-form__input" required>
+                            </div>
+                            <div class="tay-form__group">
+                                <label for="tir-sofor" class="tay-form__label">Tır Şoförü</label>
+                                <input type="text" id="tir-sofor" name="tir-sofor" class="tay-form__input" required>
+                            </div>
+                            <button type="submit" class="tay-button">Kabul Detaylarını Kaydet</button>
+                        </form>
+                    </div>
+
+                    <div id="kabuller-listesi"></div>
+                </section>
+
+                <section id="map-section" class="mt-2">
+                    <h2 class="section-title">Harita</h2>
+                    <div class="map-container">
+                        <div id="map"></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="notification-container" class="notification-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+
+<script>
+
+    // Örnek depo ve karakter bilgileri
+const ornekDepo = {
+    adi: "İstanbul Lojistik Merkezi",
+    adres: "Atatürk Mah. Lojistik Cad. No: 1, Arnavutköy, İstanbul",
+    kapasite: 50000,
+    dolulukOrani: 65,
+    latitude: 41.2583,
+    longitude: 28.7519
+};
+
+const ornekKullanici = {
+    adi: "Ahmet Yılmaz",
+    pozisyon: "Depo Müdürü",
+    telefon: "+90 532 123 45 67",
+    email: "ahmet.yilmaz@example.com"
+};
+
+// Global değişkenler
+let map;
+let state = {
+    activeJobs: [],
+    completedJobs: [],
+    availableTrucks: [],
+    kabuller: []
+};
+
+// DOM yüklendikten sonra çalışacak fonksiyon
+document.addEventListener('DOMContentLoaded', initApp);
+
+function initApp() {
+    loadData();
+    setupEventListeners();
+    updateDepoInfo();
+    initMap();
+    showJobList(); // Varsayılan olarak iş listesini göster
+}
+
+function loadData() {
+    // Normalde bu veriler bir API'den gelecektir. Şimdilik örnek veriler kullanıyoruz.
+    state.activeJobs = [
+        { id: 1, from: "İstanbul", to: "Ankara", status: "Yolda", eta: "2023-05-20 14:30" },
+        { id: 2, from: "İzmir", to: "Antalya", status: "Yükleniyor", eta: "2023-05-21 10:00" }
+    ];
+    state.completedJobs = [
+        { id: 3, from: "Bursa", to: "Eskişehir", completedAt: "2023-05-18 16:45" }
+    ];
+    state.availableTrucks = [
+        { id: "T001", type: "Kamyon", capacity: "10 ton" },
+        { id: "T002", type: "TIR", capacity: "20 ton" },
+        { id: "T003", type: "Kamyonet", capacity: "5 ton" }
+    ];
+    state.kabuller = loadFromLocalStorage('kabuller') || [];
+}
+
+function setupEventListeners() {
+    document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+    document.getElementById('mal-girisi-form').addEventListener('submit', handleMalGirisiSubmit);
+    document.getElementById('kabul-form').addEventListener('submit', handleKabulDetaylariSubmit);
+}
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('sidebar-overlay').classList.toggle('active');
+}
+
+function updateDepoInfo() {
+    const depoInfoElement = document.getElementById('depo-info');
+    depoInfoElement.innerHTML = `
+        <p><strong>Depo Adı:</strong> ${ornekDepo.adi}</p>
+        <p><strong>Adres:</strong> ${ornekDepo.adres}</p>
+        <p><strong>Kapasite:</strong> ${ornekDepo.kapasite} m³</p>
+        <p><strong>Doluluk Oranı:</strong> ${ornekDepo.dolulukOrani}%</p>
+        <p><strong>Yönetici:</strong> ${ornekKullanici.adi}</p>
+        <p><strong>İletişim:</strong> ${ornekKullanici.telefon}</p>
+    `;
+}
+
+function initMap() {
+    map = L.map('map').setView([ornekDepo.latitude, ornekDepo.longitude], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([ornekDepo.latitude, ornekDepo.longitude]).addTo(map)
+        .bindPopup(ornekDepo.adi)
+        .openPopup();
+}
+
+function showJobList() {
+    hideAllSections();
+    document.getElementById('job-list-section').style.display = 'block';
+    const jobListElement = document.getElementById('job-list');
+    jobListElement.innerHTML = '';
+    state.activeJobs.forEach(job => {
+        jobListElement.innerHTML += `
+            <div class="card">
+                <h3>İş #${job.id}</h3>
+                <p>Nereden: ${job.from}</p>
+                <p>Nereye: ${job.to}</p>
+                <p>Durum: ${job.status}</p>
+                <p>Tahmini Varış: ${job.eta}</p>
+            </div>
+        `;
+    });
+}
+
+function showAvailableTrucks() {
+    hideAllSections();
+    document.getElementById('truck-list-section').style.display = 'block';
+    const truckListElement = document.getElementById('truck-list');
+    truckListElement.innerHTML = '';
+    state.availableTrucks.forEach(truck => {
+        truckListElement.innerHTML += `
+            <div class="card">
+                <h3>Araç #${truck.id}</h3>
+                <p>Tür: ${truck.type}</p>
+                <p>Kapasite: ${truck.capacity}</p>
+                <button onclick="assignTruck('${truck.id}')">Ata</button>
+            </div>
+        `;
+    });
+}
+
+function assignTruck(truckId) {
+    alert(`${truckId} numaralı araç atandı.`);
+    // Burada atama işlemi yapılacak
+}
+
+function showProfile() {
+    alert("Profil görüntüleme özelliği henüz eklenmedi.");
+}
+
+function showCompletedJobs() {
+    alert("Tamamlanan işler listesi henüz eklenmedi.");
+}
+
+function showMalGirisi() {
+    hideAllSections();
+    document.getElementById('mal-girisi-section').style.display = 'block';
+    updateKabullerListesi();
+}
+
+function hideAllSections() {
+    const sections = ['job-list-section', 'truck-list-section', 'mal-girisi-section'];
+    sections.forEach(section => {
+        document.getElementById(section).style.display = 'none';
+    });
+}
+
+function handleMalGirisiSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const malGirisi = Object.fromEntries(formData.entries());
+    malGirisi.id = generateId();
+    malGirisi.kabulTarihi = new Date().toISOString();
+    malGirisi.durum = 'Beklemede';
+
+    state.kabuller.push(malGirisi);
+    saveToLocalStorage('kabuller', state.kabuller);
+    showNotification('Mal girişi başarıyla kaydedildi', 'success');
+    e.target.reset();
+    document.getElementById('kabul-detaylari').style.display = 'block';
+    updateKabullerListesi();
+}
+function handleKabulDetaylariSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const kabulDetaylari = Object.fromEntries(formData.entries());
+    const sonKabul = state.kabuller[state.kabuller.length - 1];
+
+    if (sonKabul) {
+        Object.assign(sonKabul, kabulDetaylari);
+        sonKabul.durum = 'Kabul Edildi';
+
+        saveToLocalStorage('kabuller', state.kabuller);
+        showNotification('Kabul detayları başarıyla kaydedildi', 'success');
+        e.target.reset();
+        document.getElementById('kabul-detaylari').style.display = 'none';
+        updateKabullerListesi();
+    } else {
+        showNotification('Önce mal girişi yapılmalıdır', 'error');
+    }
+}
+
+function updateKabullerListesi() {
+    const kabullerListesi = document.getElementById('kabuller-listesi');
+    kabullerListesi.innerHTML = '';
+    state.kabuller.forEach(kabul => {
+        kabullerListesi.innerHTML += `
+            <div class="card">
+                <h3>Mal Girişi #${kabul.id}</h3>
+                <p>Mal Adı: ${kabul['mal-adi']}</p>
+                <p>Miktar: ${kabul['mal-miktari']} ${kabul['mal-birimi']}</p>
+                <p>Durum: ${kabul.durum}</p>
+                <p>Kabul Tarihi: ${formatDate(kabul.kabulTarihi)}</p>
+                ${kabul['alici-adi'] ? `
+                    <p>Alıcı: ${kabul['alici-adi']}</p>
+                    <p>Geliş Saati: ${kabul['gelis-saati']}</p>
+                    <p>Tır Plakası: ${kabul['tir-plakasi']}</p>
+                    <p>Tır Şoförü: ${kabul['tir-sofor']}</p>
+                ` : ''}
+            </div>
+        `;
+    });
+}
+
+function generateId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('tr-TR', options);
+}
+
+function saveToLocalStorage(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+}
+
+function loadFromLocalStorage(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+function showNotification(message, type = 'info') {
+    const notificationContainer = document.getElementById('notification-container');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notificationContainer.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Yeni eklenen fonksiyonlar
+
+function showJobDetails(jobId) {
+    const job = state.activeJobs.find(j => j.id === jobId);
+    if (job) {
+        showModal(`
+            <h2>İş Detayları #${job.id}</h2>
+            <p><strong>Nereden:</strong> ${job.from}</p>
+            <p><strong>Nereye:</strong> ${job.to}</p>
+            <p><strong>Durum:</strong> ${job.status}</p>
+            <p><strong>Tahmini Varış:</strong> ${job.eta}</p>
+        `);
+    }
+}
+
+function showModal(content) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            ${content}
+            <button onclick="closeModal()">Kapat</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function closeModal() {
+    const modal = document.querySelector('.modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function updateJobStatus(jobId, newStatus) {
+    const job = state.activeJobs.find(j => j.id === jobId);
+    if (job) {
+        job.status = newStatus;
+        showNotification(`İş #${jobId} durumu güncellendi: ${newStatus}`, 'success');
+        showJobList();
+    }
+}
+
+function addNewJob() {
+    const newJob = {
+        id: state.activeJobs.length + 1,
+        from: prompt("Nereden?"),
+        to: prompt("Nereye?"),
+        status: "Planlandı",
+        eta: prompt("Tahmini varış zamanı? (YYYY-MM-DD HH:MM formatında)")
+    };
+    state.activeJobs.push(newJob);
+    showNotification("Yeni iş eklendi", 'success');
+    showJobList();
+}
+
+// Event listener'ları güncelle
+function setupEventListeners() {
+    document.getElementById('menu-toggle').addEventListener('click', toggleSidebar);
+    document.getElementById('mal-girisi-form').addEventListener('submit', handleMalGirisiSubmit);
+    document.getElementById('kabul-form').addEventListener('submit', handleKabulDetaylariSubmit);
+    
+    // Yeni event listener'lar
+    document.querySelector('.tay-nav__list').addEventListener('click', handleNavigation);
+    document.getElementById('job-list').addEventListener('click', handleJobListClick);
+}
+
+function handleNavigation(e) {
+    if (e.target.classList.contains('tay-nav__link')) {
+        e.preventDefault();
+        const action = e.target.getAttribute('onclick');
+        if (action) {
+            eval(action);
+        }
+    }
+}
+
+function handleJobListClick(e) {
+    if (e.target.tagName === 'BUTTON') {
+        const jobId = parseInt(e.target.closest('.card').querySelector('h3').textContent.split('#')[1]);
+        if (e.target.textContent === 'Detaylar') {
+            showJobDetails(jobId);
+        } else if (e.target.textContent === 'Durumu Güncelle') {
+            const newStatus = prompt("Yeni durumu girin:");
+            if (newStatus) {
+                updateJobStatus(jobId, newStatus);
+            }
+        }
+    }
+}
+
+// Uygulama başlatma
+initApp();
+</script>
+
+</body>
+</html>
